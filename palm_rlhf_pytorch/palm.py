@@ -309,7 +309,7 @@ class PaLM(Module):
 
         self.norm = LayerNorm(dim)
         self.to_logits = nn.Linear(dim, num_tokens, bias=False)
-        
+
         self.to_logits.weight = self.token_emb.weight
 
         nn.init.normal_(self.token_emb.weight, std=0.02)

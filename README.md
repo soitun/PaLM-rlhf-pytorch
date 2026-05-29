@@ -276,25 +276,25 @@ answer = trainer.generate(2048, prompt = prompts[0], num_samples = 10) # (<= 204
 
 ```bibtex
 @misc{xie2025simplepolicyoptimization,
-    title   = {Simple Policy Optimization}, 
+    title   = {Simple Policy Optimization},
     author  = {Zhengpeng Xie and Qiang Zhang and Fan Yang and Marco Hutter and Renjing Xu},
     year    = {2025},
     eprint  = {2401.16025},
     archivePrefix = {arXiv},
     primaryClass = {cs.LG},
-    url = {https://arxiv.org/abs/2401.16025}, 
+    url = {https://arxiv.org/abs/2401.16025},
 }
 ```
 
 ```bibtex
 @misc{cheng2025reasoningexplorationentropyperspective,
-    title   = {Reasoning with Exploration: An Entropy Perspective on Reinforcement Learning for LLMs}, 
+    title   = {Reasoning with Exploration: An Entropy Perspective on Reinforcement Learning for LLMs},
     author  = {Daixuan Cheng and Shaohan Huang and Xuekai Zhu and Bo Dai and Wayne Xin Zhao and Zhenliang Zhang and Furu Wei},
     year    = {2025},
     eprint  = {2506.14758},
     archivePrefix = {arXiv},
     primaryClass = {cs.CL},
-    url     = {https://arxiv.org/abs/2506.14758}, 
+    url     = {https://arxiv.org/abs/2506.14758},
 }
 ```
 
@@ -309,5 +309,17 @@ answer = trainer.generate(2048, prompt = prompts[0], num_samples = 10) # (<= 204
     archivePrefix = {arXiv},
     primaryClass = {cs.LG},
     url     = {https://arxiv.org/abs/2509.15207}
+}
+```
+
+```bibtex
+@misc{kaddour2026targetpolicyoptimization,
+    title   = {Target Policy Optimization},
+    author  = {Jean Kaddour},
+    year    = {2026},
+    eprint  = {2604.06159},
+    archivePrefix = {arXiv},
+    primaryClass = {cs.LG},
+    url     = {https://arxiv.org/abs/2604.06159},
 }
 ```

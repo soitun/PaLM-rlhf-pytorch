@@ -138,8 +138,8 @@ class ActorCritic(Module):
     ):
         actions = self.actor_palm.generate(
             max_seq_len,
-            prompt = state,       
-            eos_token = eos_token,     
+            prompt = state,
+            eos_token = eos_token,
             finetune_scope = self.actor_lora_scope,
             use_tqdm = True,
             **kwargs
@@ -164,7 +164,7 @@ class ActorCritic(Module):
             sequence,
             mask = action_mask,
             return_values = return_values
-        )        
+        )
 
         return PPOActionCriticReturn(
             actions,

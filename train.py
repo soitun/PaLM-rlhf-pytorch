@@ -96,7 +96,7 @@ for i in tqdm(range(NUM_BATCHES), mininterval=10.0, desc="training"):
 
         accelerator.print(f"training loss: {loss.item()}")
         accelerator.clip_grad_norm_(model.parameters(), 0.5)
-    
+
         optim.step()
         optim.zero_grad()
 

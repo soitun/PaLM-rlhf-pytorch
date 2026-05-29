@@ -37,7 +37,7 @@ from einops.layers.torch import Rearrange
 
 # einstein notation
 
-# b - batch 
+# b - batch
 # n - sequence
 # d - feature dimension
 # l - logits
@@ -93,8 +93,8 @@ class Actor(Module):
     ):
         actions = self.actor_palm.generate(
             max_seq_len,
-            prompt = state,       
-            eos_token = eos_token,     
+            prompt = state,
+            eos_token = eos_token,
             finetune_scope = self.actor_lora_scope,
             use_tqdm = True,
             **kwargs
@@ -118,7 +118,7 @@ class Actor(Module):
         action_logits = self.forward(
             sequence,
             mask = action_mask,
-        )        
+        )
 
         return FlowRLActionReturn(
             actions,
@@ -230,7 +230,7 @@ class PartitionFunction(Module):
             MLP(*dims),
             Rearrange('... 1 -> ...')
         )
-        
+
     def forward(self, prompt_embeddings):
         return self.mlp(prompt_embeddings)
 
@@ -317,17 +317,17 @@ class FlowRLTrainer(Module):
         self.actor_optim = AdoptAtan2(actor.parameters(), lr = actor_lr, weight_decay = actor_wd, betas = betas)
 
         # flowrl hyperparams
-        
+
         self.eps_clip = eps_clip
         self.beta = beta  # inverse temperature for reward distribution
         self.flowrl_num_times_sample = flowrl_num_times_sample
-        
+
         # partition function model
         self.partition_function = PartitionFunction(
             hidden_dim=partition_function_hidden_dim,
             num_layers=3
         )
-        
+
         # optimizer for partition function
         self.partition_function_optim = AdoptAtan2(
             self.partition_function.parameters(),
@@ -389,7 +389,7 @@ class FlowRLTrainer(Module):
             max_seq_len = max_seq_len,
             **kwargs
         )
-        
+
         actions = action_return.actions
         sequences = action_return.sequence
         mask = action_return.mask
@@ -435,7 +435,7 @@ class FlowRLTrainer(Module):
                 normalized_rewards,
             ) in dl:
                 action_masks = ~prompt_masks & masks
-                
+
                 # π_θ(y|x)
                 action_logits = self.actor(sequences, mask = action_masks)
                 action_logits = shift(action_logits, shift = 1, dim = -2)
@@ -443,44 +443,44 @@ class FlowRLTrainer(Module):
                 action_probs = action_logits.softmax(dim = -1)
                 action_log_probs = einx.get_at('b n [l], b n -> b n', action_probs, sequences)
                 action_log_probs = action_log_probs[:, -action_len:]
-                
-                # π_ref(y|x) 
+
+                # π_ref(y|x)
                 with torch.no_grad():
                     ref_logits = self.palm(sequences, finetune_scope = None)
                     ref_logits = shift(ref_logits, shift = 1, dim = -2)
                     ref_probs = ref_logits.softmax(dim = -1)
                     ref_log_probs = einx.get_at('b n [l], b n -> b n', ref_probs, sequences)
                     ref_log_probs = ref_log_probs[:, -action_len:]
-                
+
                 # w = clip(π_θ/π_old)
                 trajectory_log_ratio = (action_log_probs - old_log_probs).sum(dim=-1)
                 trajectory_ratio = torch.exp(trajectory_log_ratio)
                 clipped_ratio = torch.clamp(trajectory_ratio, 1 - self.eps_clip, 1 + self.eps_clip)
                 importance_weight = clipped_ratio.detach()
-                
+
                 # Z_φ(x) from prompt embeddings
                 with torch.no_grad():
                     prompt_lens = prompt_masks.sum(dim=1)
                     max_prompt_len = prompt_lens.max().item()
                     prompt_tokens = sequences[:, :max_prompt_len]
-                    
+
                     prompt_final_embeddings = self.actor.actor_palm(
                         prompt_tokens,
                         return_only_embedding=True,
                         finetune_scope=self.actor.actor_lora_scope if self.actor.actor_lora else None
                     )
-                    
+
                     prompt_mask_truncated = prompt_masks[:, :max_prompt_len]
                     masked_embeddings = einx.multiply('... d, ...', prompt_final_embeddings, prompt_mask_truncated)
                     prompt_embeddings = einx.divide('b d, b', masked_embeddings.sum(dim=1), prompt_lens)
-                
+
                 log_z_phi = self.partition_function(prompt_embeddings)
-                
+
                 # 1/|y| normalization
                 response_lengths = action_masks.sum(dim=1).float().clamp(min=1.0)
                 norm_policy_log_probs = action_log_probs.sum(dim=-1) / response_lengths
                 norm_ref_log_probs = ref_log_probs.sum(dim=-1) / response_lengths
-                
+
                 # Eq. 6: (log Z_φ(x) + 1/|y| log π_θ(y|x) - βr̂ - 1/|y| log π_ref(y|x))²
                 trajectory_balance = (
                     log_z_phi
@@ -488,21 +488,21 @@ class FlowRLTrainer(Module):
                     - self.beta * normalized_rewards
                     - norm_ref_log_probs
                 )
-                
+
                 flowrl_loss = importance_weight * (trajectory_balance ** 2)
                 loss = flowrl_loss.mean()
-                
+
                 # Update both actor and partition function
                 self.accelerate.backward(loss)
-                
+
                 self.print(f'flowrl_loss: {loss.item():.3f}, trajectory_balance: {trajectory_balance.mean().item():.3f}')
-                
+
                 if exists(self.max_norm):
                     self.accelerate.clip_grad_norm_(self.actor.parameters(), self.max_norm)
-                
+
                 self.actor_optim.step()
                 self.actor_optim.zero_grad()
-                
+
                 self.partition_function_optim.step()
                 self.partition_function_optim.zero_grad()
 
@@ -552,7 +552,7 @@ class FlowRLTrainer(Module):
                     eos_token = eos_token,
                     temperature = temperature,
                 )
-                
+
                 actions = action_return.actions
                 sequence = action_return.sequence
                 mask = action_return.mask

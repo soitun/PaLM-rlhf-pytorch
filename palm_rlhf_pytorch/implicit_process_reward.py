@@ -1,4 +1,4 @@
-# Free Process Rewards without Process Labels 
+# Free Process Rewards without Process Labels
 # Yuan et al.  https://arxiv.org/abs/2412.01981 - paper that led to Prime
 
 from __future__ import annotations

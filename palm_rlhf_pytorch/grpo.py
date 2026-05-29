@@ -35,7 +35,7 @@ from einops.layers.torch import Rearrange
 
 # einstein notation
 
-# b - batch 
+# b - batch
 # n - sequence
 # d - feature dimension
 # l - logits
@@ -93,8 +93,8 @@ class Actor(Module):
     ):
         actions = self.actor_palm.generate(
             max_seq_len,
-            prompt = state,       
-            eos_token = eos_token,     
+            prompt = state,
+            eos_token = eos_token,
             finetune_scope = self.actor_lora_scope,
             use_tqdm = True,
             **kwargs
@@ -118,7 +118,7 @@ class Actor(Module):
         action_logits = self.forward(
             sequence,
             mask = action_mask,
-        )        
+        )
 
         return GRPOActionReturn(
             actions,
