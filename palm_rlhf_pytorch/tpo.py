@@ -339,7 +339,7 @@ class RLHFTrainer(Module):
 
                 # z-score normalize rewards
 
-                normalized_rewards = z_score(rewards)
+                normalized_rewards = z_score(rewards) if rewards.std() > 0. else torch.zeros_like(rewards)
 
                 # construct target
 
